@@ -9,9 +9,10 @@ type AuthorizationProps = {
     error: string | null;
     retryAt: number | null;
     now: number | null;
+    activateButton: boolean;
 }
 
-function AuthorizationPage({ email, enterCode, resendCode, error, retryAt, now }: AuthorizationProps) {
+function AuthorizationPage({ email, enterCode, resendCode, error, retryAt, now, activateButton }: AuthorizationProps) {
     const [code, setCode] = useState("");
     const codeInputElement = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(false);
@@ -96,29 +97,33 @@ function AuthorizationPage({ email, enterCode, resendCode, error, retryAt, now }
                     </div>
                     <button type="submit" 
                         className="flex flex-row items-center justify-center bg-foreground border-border-strong border-2 p-2 gap-1
-                        hover:bg-foreground/90 active:bg-foreground/70 transition-colors duration-200"
+                        hover:bg-foreground/90 active:bg-foreground/70 transition-colors duration-200
+                        disabled:cursor-not-allowed disabled:bg-foreground/70"
+                        disabled={!activateButton}
                     >
                         <span className="text-lg font-medium text-text-inverse">확인</span>
                         <CheckIcon aria-hidden="true" className="size-5 text-text-inverse"/>
                     </button>
                 </form>
-                {error && !retryAt && <p className="text-sm text-error">{error}</p>}
-                <div className="flex flex-row items-center justify-start gap-2">
-                    {retryAt && (
-                        <p className="text-sm text-text">{
-                            (timeLeftMin !== null && timeLeftMin > 0) ? `${timeLeftMin}분 ${timeLeftSec}초` : `${timeLeftSec}초`
-                        } 후에 코드를 다시 받을 수 있어요.</p>
-                    )}
-                    {!retryAt && (
-                        <span className="text-sm text-text">코드를 받지 못했나요?</span>
-                    )}
-                    {!retryAt && (
-                        <button className="text-sm text-text underline hover:text-text/80 active:text-text/60 transition-colors duration-200" 
-                        onClick={(e) => {
-                            e.preventDefault();
-                            resendCode(email);
-                        }}>다시 보내기</button>
-                    )}
+                <div className="flex flex-col items-start justify-start gap-1">
+                    {error && <span className="text-sm text-error">{error}</span>}
+                    <div className="flex flex-row items-center justify-start gap-2">
+                        {retryAt && activateButton && (
+                            <p className="text-sm text-text">{
+                                (timeLeftMin !== null && timeLeftMin > 0) ? `${timeLeftMin}분 ${timeLeftSec}초` : `${timeLeftSec}초`
+                            } 후에 코드를 다시 받을 수 있어요.</p>
+                        )}
+                        {!retryAt && !error && activateButton && (
+                            <span className="text-sm text-text">코드를 받지 못했나요?</span>
+                        )}
+                        {!retryAt && activateButton && (
+                            <button className="text-sm text-text underline hover:text-text/80 active:text-text/60 transition-colors duration-200" 
+                            onClick={(e) => {
+                                e.preventDefault();
+                                resendCode(email);
+                            }}>다시 보내기</button>
+                        )}
+                    </div>
                 </div>
             </div>
         </div>

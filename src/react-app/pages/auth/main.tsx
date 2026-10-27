@@ -4,9 +4,10 @@ import { ArrowRightIcon } from "@heroicons/react/20/solid";
 type AuthMainProps = {
   enterEmail: (email: string) => Promise<boolean>;
   error: string | null;
+  activateButton: boolean;
 };
 
-function AuthMain({ enterEmail, error }: AuthMainProps) {
+function AuthMain({ enterEmail, error, activateButton }: AuthMainProps) {
     const emailInputElement = useRef<HTMLInputElement>(null);
     const [email, setEmail] = useState("");
     useEffect(() => {
@@ -40,10 +41,13 @@ function AuthMain({ enterEmail, error }: AuthMainProps) {
                         ref={emailInputElement}
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
+                        disabled={!activateButton}
                     />
                     <button type="submit"
+                        disabled={!activateButton}
                         className="flex flex-row items-center justify-center bg-foreground border-border-strong border-2 p-2 
-                        hover:bg-foreground/90 active:bg-foreground/70 transition-colors duration-200"
+                        hover:bg-foreground/90 active:bg-foreground/70 transition-colors duration-200 
+                        disabled:cursor-not-allowed disabled:bg-foreground/70"
                     >
                         <ArrowRightIcon aria-hidden="true" className="size-5 text-text-inverse"/>
                     </button>

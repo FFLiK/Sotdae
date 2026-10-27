@@ -27,36 +27,41 @@ function AuthPage() {
     const [error, setError] = useState<string | null>(null);
     const [retryAt, setRetryAt] = useState<number | null>(null);
     const [now, setNow] = useState<number | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const navigate = useNavigate();
 
     useEffect(() => {
-        try {
-            fetch("/api/otp", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            }).then(async (response) => {
-                const data = await response.json() as {
-                    user_id?: string;
-                    error?: string;
-                };
-                if (!response.ok) {
-                    if (response.status !== 401) {
-                        throw data.error || "Unknown error occurred";
+        const checkSession = async () => {
+            try {
+                await fetch("/api/otp", {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }).then(async (response) => {
+                    const data = await response.json() as {
+                        user_id?: string;
+                        error?: string;
+                    };
+                    if (!response.ok) {
+                        if (response.status !== 401) {
+                            throw data.error || "Unknown error occurred";
+                        }
+                        setContent("main");
+                    } else {
+                        navigate("/");
                     }
-                    setContent("main");
-                } else {
-                    navigate("/");
+                })
+            } catch (error) {
+                switch (error) {
+                    default:
+                        console.error("Error occurred while fetching OTP:", error);
+                        navigate("/error");
                 }
-            })
-        } catch (error) {
-            switch (error) {
-                default:
-                    console.error("Error occurred while fetching OTP:", error);
             }
         }
+        checkSession();
     }, []);
 
     useEffect(() => {
@@ -68,7 +73,6 @@ function AuthPage() {
             if (current >= retryAt) {
                 window.clearInterval(intervalId);
                 setRetryAt(null);
-                setError(null);
             }
         };
         const intervalId = window.setInterval(updateNow, 1000);
@@ -77,8 +81,8 @@ function AuthPage() {
     }, [retryAt]);
 
     const sendEmail = async (email: string) => {
-        setError(null);
         try {
+            setLoading(true);
             await fetch("/api/auth/challenges", {
                 method: "POST",
                 headers: {
@@ -95,10 +99,9 @@ function AuthPage() {
                 if (!response.ok) {
                     throw new SendError(data.error ?? "Unknown error occurred", response.status === 429 ? data.retryAt : undefined);
                 }
-
                 setRetryAt(data.retryAt ?? null);
-                setNow(Date.now());
-            });
+                setError(null);
+            })
             return true;
         } catch (error : unknown) {
             if (error instanceof SendError) {
@@ -131,6 +134,9 @@ function AuthPage() {
                 setError("알 수 없는 오류가 발생했어요. 잠시 후 다시 시도해주세요.");
             }
             return false;
+        } finally {
+            setLoading(false);
+            setNow(Date.now());
         }
     }
 
@@ -145,6 +151,7 @@ function AuthPage() {
 
     const submitCode = async (code: string) => {
         try {
+            setLoading(true);
             await fetch("/api/auth/challenges/verify", {
                 method: "POST",
                 headers: {
@@ -179,13 +186,11 @@ function AuthPage() {
                         setError(`인증 코드가 틀렸어요. ${EMAIL_AUTH_POLICY.maxVerificationAttempts - (error.attempts ?? 0)}번 남았어요.`);
                         break;
                     case "No challenge found for this email":
-                        setError("이메일에 대한 인증 코드가 생성되지 않았어요. 다시 시도해주세요.");
-                        break;
                     case "Challenge has expired":
-                        setError("인증 코드가 만료되었어요. 다시 시도해주세요.");
+                        setError("인증 코드가 만료되었어요. 인증 코드를 다시 받아주세요.");
                         break;
                     case "Too many failed attempts.":
-                        setError("인증 코드 입력을 너무 많이 틀렸어요. 인증 코드를 다시 받아주세요.");
+                        setError("인증 코드를 너무 많이 틀렸어요. 인증 코드를 다시 받아주세요.");
                         break;
                     default:
                         setError("알 수 없는 오류가 발생했어요. 잠시 후 다시 시도해주세요.");
@@ -196,7 +201,9 @@ function AuthPage() {
                 console.error("Unexpected error:", error);
             }
             return false;
-        } 
+        } finally {
+            setLoading(false);
+        }
     }
 
     const JSX = (
@@ -204,8 +211,8 @@ function AuthPage() {
             <div className="flex flex-1 flex-col items-end justify-center p-8">
                 <img src="/symbol.svg" className="w-auto h-[250px]"/>
             </div>
-            {content === "main" && <Main enterEmail={changeToAuthorization} error={error} />}
-            {content === "authorization" && <Authorization email={email} enterCode={submitCode} resendCode={sendEmail} error={error} retryAt={retryAt} now={now} />}
+            {content === "main" && <Main enterEmail={changeToAuthorization} error={error} activateButton={!loading} />}
+            {content === "authorization" && <Authorization email={email} enterCode={submitCode} resendCode={sendEmail} error={error} retryAt={retryAt} now={now} activateButton={!loading} />}
             {/*
             <div className="absolute pointer-events-none inset-0 flex flex-col items-start justify-end p-8 gap-1">
                 <h3 className="text-2xl font-semibold text-text">솟대</h3>
