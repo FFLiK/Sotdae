@@ -17,6 +17,20 @@
 	"assets": {
 		"directory": "./dist/client",
 		"not_found_handling": "single-page-application"
+	},
+	"d1_databases": [
+		{
+		"binding": "DB",
+		"database_name": "sotdae-dev",
+		"database_id": "e0711123-b87e-46f1-9556-f48f85ec6e03"
+		}
+	],
+	"vars": {
+		"APP_ENV": "dev",
+		"APP_BASE_URL": "https://localhost:5173"
+	},
+	"secrets": {
+		"required": ["EMAIL_CODE_PEPPER", "RESEND_API_KEY"]
 	}
 	/**
 	 * Smart Placement
