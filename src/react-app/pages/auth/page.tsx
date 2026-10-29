@@ -4,6 +4,7 @@ import Authorization from "./authorization";
 import Success from "./success";
 import { EMAIL_AUTH_POLICY } from "../../../shared/config/email-auth-policy";
 import { useNavigate } from "react-router";
+import checkSession from "../../methods/checkSession";
 
 type AuthStep = "sessionChecking" | "main" | "authorization" | "success";
 
@@ -32,36 +33,9 @@ function AuthPage() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        const checkSession = async () => {
-            try {
-                await fetch("/api/otp", {
-                    method: "GET",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                }).then(async (response) => {
-                    const data = await response.json() as {
-                        user_id?: string;
-                        error?: string;
-                    };
-                    if (!response.ok) {
-                        if (response.status !== 401) {
-                            throw data.error || "Unknown error occurred";
-                        }
-                        setContent("main");
-                    } else {
-                        navigate("/");
-                    }
-                })
-            } catch (error) {
-                switch (error) {
-                    default:
-                        console.error("Error occurred while fetching OTP:", error);
-                        navigate("/error");
-                }
-            }
-        }
-        checkSession();
+        checkSession(navigate).then(() => {
+            setContent("main");
+        });
     }, []);
 
     useEffect(() => {

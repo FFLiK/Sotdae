@@ -1,6 +1,7 @@
 import { Routes, Route } from "react-router";
 import Background from "./components/background";
 import MainPage from "./pages/main/page";
+import CreatePage from "./pages/create/page";
 import AuthPage from "./pages/auth/page";
 import NotFoundPage from "./pages/error/404";
 import ErrorPage from "./pages/error/500";
@@ -12,6 +13,7 @@ function App() {
 			<main className="relative z-10 flex w-screen h-dvh p-[64px] flex-col items-center justify-center gap-4">
 				<Routes>
 					<Route path="/" element={<MainPage/>}/>
+					<Route path="/create" element={<CreatePage/>}/>
 					<Route path="/login" element={<AuthPage />}/>
 					<Route path="/error" element={<ErrorPage />}/>
 					<Route path="*" element={<NotFoundPage />}/>

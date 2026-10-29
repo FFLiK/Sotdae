@@ -66,3 +66,24 @@ body {
 		opacity: 0;
 	}
 }
+
+.email-scrollbar::-webkit-scrollbar {
+	height: 5px;
+    background:	transparent;
+}
+
+.email-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.email-scrollbar::-webkit-scrollbar-thumb {
+	background: var(--border-strong);
+	border-top: 3px solid transparent;
+	background-clip: padding-box;
+	border-radius: 0;
+	opacity: 0.8;
+}
+
+.email-scrollbar::-webkit-scrollbar-corner {
+	background: transparent;
+}

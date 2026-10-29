@@ -30,7 +30,7 @@
 		"APP_BASE_URL": "https://localhost:5173"
 	},
 	"secrets": {
-		"required": ["EMAIL_CODE_PEPPER", "RESEND_API_KEY"]
+		"required": ["EMAIL_CODE_PEPPER", "OTP_ENCRYPTION_KEY" , "RESEND_API_KEY"]
 	}
 	/**
 	 * Smart Placement

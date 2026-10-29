@@ -15,6 +15,13 @@ class DB_user {
         }
         return null;
     }
+
+    static async getEmail(db: D1Database, userId: string): Promise<string | null> {
+        const getResult = await db.prepare(
+            `SELECT email FROM users WHERE id = ?`
+        ).bind(userId).first<{email: string}>();
+        return getResult ? getResult.email : null;
+    }
 }
 
 export { DB_user };
