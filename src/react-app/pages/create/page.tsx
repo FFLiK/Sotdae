@@ -8,6 +8,7 @@ import { EyeSlashIcon, EyeIcon } from "@heroicons/react/20/solid";
 function CreatePage() {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const [isSubmitting, setIsSubmitting] = useState(false);
     const [step, setStep] = useState<"enterName" | "enterUsers" | "enterCode">("enterName");
     const [title, setTitle] = useState<string>("");
     const [serviceName, setServiceName] = useState<string>("");
@@ -63,11 +64,15 @@ function CreatePage() {
     }
 
     const createOtp = async () => {
+        if (isSubmitting) return;
+        setIsSubmitting(true);
         if (title.trim() === "" || serviceName.trim() === "" || otpKey.trim() === "" || !isKeyValid(otpKey.trim())) {
+            setIsSubmitting(false);
             return;
         }
         for (const email of emails) {
             if (!isEmailValid(email)) {
+                setIsSubmitting(false);
                 return;
             }
         }
@@ -95,6 +100,8 @@ function CreatePage() {
                 } else {
                     throw new Error(data.error || "Failed to create OTP");
                 }
+            }).finally(() => {
+                setIsSubmitting(false);
             });
         } catch (error) {
             console.error("Failed to create OTP:", error);
@@ -289,7 +296,7 @@ function CreatePage() {
                             className="flex flex-row w-full items-center justify-center bg-foreground border-border-strong border-t-2 p-2 gap-2
                             hover:bg-foreground/90 active:bg-foreground/70 transition-colors duration-200
                             disabled:cursor-not-allowed disabled:bg-foreground/70"
-                            disabled={(step === "enterName" && (title.trim() === "" || serviceName.trim() === "")) || (step === "enterCode" && (otpKey.trim() === "" || isKeyValid(otpKey.trim()) === false))}
+                            disabled={(step === "enterName" && (title.trim() === "" || serviceName.trim() === "")) || (step === "enterCode" && (otpKey.trim() === "" || isKeyValid(otpKey.trim()) === false)) || isSubmitting}
                         >
                             <span className="text-md font-medium text-text-inverse">{buttonType === "next" ? "다음으로" : "OTP 만들기"}</span>
                             {buttonType === "next" && <ArrowRightIcon aria-hidden="true" className="size-4 text-text-inverse"/>}

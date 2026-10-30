@@ -74,7 +74,7 @@ router.post(
                 c.env.APP_BASE_URL,
             ).toString();   
             try {
-                const { data, error } = await resend.emails.send({
+                const { error } = await resend.emails.send({
                 from: `Sotdae Verification <${WORKER_CONFIG_VALUES.emailAuthSendingEmailAddress}>`,
                 to: [email],
                 subject: 'Sotdae Verification Code',

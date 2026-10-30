@@ -40,14 +40,17 @@ class DB_otp {
         return result.success;
     }
 
-    static async createOtp(db: D1Database, title: string, serviceName: string, otpKey: string, nonce: string): Promise<string | null> {
+    static async createOtp(db: D1Database, title: string, serviceName: string, otpKey: string, nonce: string, userId: string, visibility: boolean): Promise<string | null> {
         const id = crypto.randomUUID();
         const createdAt = Date.now();
-        const result = await db.prepare(
-            `INSERT INTO otp (id, title, service_name, otp_key, nonce, created_at) VALUES (?, ?, ?, ?, ?, ?)
-            RETURNING id`
-        ).bind(id, title, serviceName, otpKey, nonce, createdAt).first<{id: string}>();
-        return result ? result.id : null;
+        const createOtpStatement = db.prepare(
+            `INSERT INTO otp (id, title, service_name, otp_key, nonce, created_at) VALUES (?, ?, ?, ?, ?, ?)`
+        ).bind(id, title, serviceName, otpKey, nonce, createdAt);
+        const createRelationStatement = db.prepare(
+            `INSERT INTO user_otp_relation (user_id, otp_id, is_manager, visibility, appended_at, visibility_changed_at) VALUES (?, ?, ?, ?, ?, ?)`
+        ).bind(userId, id, 1, visibility ? 1 : 0, createdAt, createdAt);
+        const result = await db.batch([createOtpStatement, createRelationStatement]).then((results) => results[0]);
+        return result.success ? id : null;
     }
 
     static async createUserOtpRelation(db: D1Database, userId: string, otpId: string, isManager: boolean, visibility: boolean): Promise<boolean> {
