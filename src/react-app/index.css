@@ -87,3 +87,59 @@ body {
 .email-scrollbar::-webkit-scrollbar-corner {
 	background: transparent;
 }
+
+.vertical-scrollbar::-webkit-scrollbar {
+	width: 5px;
+	background:	transparent;
+}
+
+.vertical-scrollbar::-webkit-scrollbar-track {
+	background: transparent;
+}
+
+.vertical-scrollbar::-webkit-scrollbar-thumb {
+	background: var(--border-strong);
+	border-right: 3px solid transparent;
+	background-clip: padding-box;
+	border-radius: 0;
+	opacity: 0.8;
+}
+
+.vertical-scrollbar::-webkit-scrollbar-corner {
+	background: transparent;
+}
+
+@property --option-bg {
+    syntax: "<color>";
+    inherits: false;
+    initial-value: white;
+}
+
+.user-select option {
+    --option-bg: var(--background);
+
+    background-image: linear-gradient(
+        var(--option-bg),
+        var(--option-bg)
+    );
+    color: var(--text);
+
+    transition:
+        --option-bg 200ms ease,
+        color 200ms ease;
+}
+
+.user-select option {
+	--option-bg: var(--background);
+	color: var(--text);
+}
+
+.user-select option:hover {
+	--option-bg: color-mix(in srgb, var(--foreground) 10%, var(--background) 90%);
+	color: var(--text);
+}
+
+.user-select option:checked {
+    --option-bg: var(--foreground);
+    color: var(--text-inverse);
+}

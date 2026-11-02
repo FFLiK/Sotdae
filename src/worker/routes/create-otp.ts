@@ -54,7 +54,8 @@ router.post(
             if (!otpId) {
                 throw new Error("OTP id is null");
             }
-            let failedEmails: string[] = [];
+            const failedEmails: string[] = [];
+            const duplicateEmails: string[] = [];
             for (const email of emails) {
                 try {
                     const user = await DB_user.getUserByEmail(c.env.DB, email);
@@ -67,17 +68,14 @@ router.post(
                     }
                     const relationResult = await DB_otp.createUserOtpRelation(c.env.DB, user.id, otpId, false, true);
                     if (!relationResult) {
-                        failedEmails.push(email);
+                        duplicateEmails.push(email);
                     }
                 } catch (error) {
                     console.error(`Error processing email ${email}:`, error);
                     failedEmails.push(email);
                 }
             }
-            if (failedEmails.length > 0) {
-                return c.json({ message: "OTP created, but some users could not be added", otpId: otpId, failedEmails: failedEmails }, 207);
-            }
-            return c.json({ message: "OTP created successfully", otpId: otpId }, 201);
+            return c.json({ message: "OTP created", otpId: otpId, failedEmails: failedEmails, duplicateEmails: duplicateEmails }, 201);
         } catch (error) {
             console.error("Error creating OTP:", error);
             return c.json({ error: "Failed to create OTP" }, 500);

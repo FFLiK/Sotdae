@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import { validator } from "hono/validator";
 import { setCookie } from 'hono/cookie'
 import { Resend } from 'resend';
-import { requireSession } from "./session-middleware";
+import { requireManagerSession, requireSession } from "./session-middleware";
 const router = new Hono<{ Bindings: Env }>();
 
 import { generateVerificationCode, codeMessage } from "../auth/verification-code";
@@ -16,6 +16,7 @@ import EmailTemplate from "../email-templates/auth-email";
 import { EMAIL_AUTH_POLICY, EMAIL_PIN_POLICY } from "../../shared/config/email-auth-policy";
 import { WORKER_CONFIG } from "../config/worker-config";
 import { WORKER_CONFIG_VALUES } from "../config/values";
+import { DB_otp } from "../db/otp-repository";
 
 router.get(
     "/session",
@@ -24,6 +25,15 @@ router.get(
         return c.json({ message: "Session is valid" }, 200);
     }
 );
+
+router.get(
+    "/manager/:otpid",
+    requireSession,
+    requireManagerSession,
+    async (c) => {
+        return c.json({ message: "Manager session is valid" }, 200);
+    }
+)
 
 router.post(
     "/challenges", 

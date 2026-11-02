@@ -224,7 +224,7 @@ function MainPage() {
                     break;
                 }
             }
-            fetch(`/api/otp/${otp.id}/visibility`, {
+            fetch(`/api/otp/update/${otp.id}/visibility`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -246,7 +246,7 @@ function MainPage() {
             });
             setOtpList(newOtpList);
         }} onSettingButtonClicked={() => {
-            console.log("Setting button clicked for OTP ID:", otp.id);
+            navigate("/property/" + otp.id);
         }} />
     )
 

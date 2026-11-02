@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router";
 import Background from "./components/background";
 import MainPage from "./pages/main/page";
 import CreatePage from "./pages/create/page";
+import PropertyPage from "./pages/property/page";
 import AuthPage from "./pages/auth/page";
 import NotFoundPage from "./pages/error/404";
 import ErrorPage from "./pages/error/500";
@@ -14,6 +15,7 @@ function App() {
 				<Routes>
 					<Route path="/" element={<MainPage/>}/>
 					<Route path="/create" element={<CreatePage/>}/>
+					<Route path="/property/:id" element={<PropertyPage />}/>
 					<Route path="/login" element={<AuthPage />}/>
 					<Route path="/error" element={<ErrorPage />}/>
 					<Route path="*" element={<NotFoundPage />}/>
